@@ -53,7 +53,7 @@ resource "google_compute_instance" "bastion" {
   }
 
   metadata {
-    ssh-keys = "admin:${file("${var.ssh_public_key}")}"
+    ssh-keys = "${file("${var.ssh_public_key}")}"
   }
 
   metadata_startup_script = "${var.startup_script}"

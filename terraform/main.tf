@@ -79,7 +79,7 @@ module "master" {
   metadata = {
     "owner" = "${var.owner}"
 
-    "ssh-keys" = "admin:${file("${var.ssh_public_key}")}"
+    "ssh-keys" = "${file("${var.ssh_public_key}")}"
   }
 }
 
@@ -109,7 +109,7 @@ module "node" {
   metadata = {
     "owner" = "${var.owner}"
 
-    "ssh-keys" = "admin:${file("${var.ssh_public_key}")}"
+    "ssh-keys" = "${file("${var.ssh_public_key}")}"
   }
 }
 
