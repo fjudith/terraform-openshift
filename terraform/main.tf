@@ -139,8 +139,8 @@ module "dns" {
   token           = "${var.cloudflare_token}"
   domain          = "${var.domain}"
   subdomain       = "${var.subdomain}"
-  public_ips      = "${list(module.gateway.external_ip)}"
-  hostnames       = "${list("gw")}"
+  public_ips      = "${list(module.loadbalancer.external_ip)}"
+  hostnames       = "${list("lb")}"
   bastion_create  = true
   bastion_host    = "bastion"
   bastion_ip      = "${list(module.bastion.external_ip)}"
@@ -156,13 +156,13 @@ module "salt-minion-master" {
   source = "./configuration-management/salt-minion"
 
   role    = "master"
-  salt_master = "${module.bastion.primary_ip}"
+  salt_master = "${module.bastion.internal_ip}"
 }
 module "salt-minion-node" {
   source = "./configuration-management/salt-minion"
 
   role    = "node"
-  salt_master = "${module.bastion.primary_ip}"
+  salt_master = "${module.bastion.internal_ip}"
 }
 
 # module "os_tuning" {
@@ -175,18 +175,18 @@ module "salt-minion-node" {
 #   connections = "${concat(module.bastion.external_ip, module.gateway.external_ip, module.master.network_ip, module.node.network_ip)}"
 # }
 
-output "bastion_public_ip" {
+output "bastion_external_ip" {
   value = "${module.bastion.external_ip}"
 }
 
-output "bastion_primary_ip" {
-  value = "${module.bastion.primary_ip}"
+output "bastion_internal_ip" {
+  value = "${module.bastion.internal_ip}"
 }
 
-output "gateway_public_ip" {
+output "gateway_external_ip" {
   value = "${module.gateway.external_ip}"
 }
 
-output "loadbalancer_ip" {
+output "loadbalancer_external_ip" {
   value = "${module.loadbalancer.external_ip}"
 }
