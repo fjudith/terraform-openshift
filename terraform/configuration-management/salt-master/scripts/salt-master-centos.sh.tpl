@@ -10,6 +10,7 @@ echo "Install Python"
 yum update -y && \
 yum install -y \
   htop \
+  git \
   curl \
   net-tools \
   gnupg2 \

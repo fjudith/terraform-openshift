@@ -10,6 +10,7 @@ echo "Install Python"
 apt-get update -yqq && \
 apt-get install -yqq --no-install-recommends \
   curl \
+  git \
   net-tools \
   gnupg2 \
   lsb-release \
