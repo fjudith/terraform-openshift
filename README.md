@@ -29,6 +29,16 @@ Copy the `terraform.tfvars.example` file as `terraform.tfvars` and customize var
 
 > `terraform.tfvars` is not tracked by git in order to avoid credentials leaks.
 
+Create a file `authorized-keys.pub` containing SSH public key in the form of key/value pairs.
+
+**Example**
+
+```text
+admin:<ssh_pub_key1>
+admin:<ssh_pub_key2>
+john.doe:<ssh_pub_key3>
+```
+
 ```bash
 export GOOGLE_CLOUD_KEYFILE_JSON={{path}}
 cd terraform/ && \
