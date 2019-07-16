@@ -39,15 +39,25 @@ variable name {
 }
 
 variable service_port {
-  description = "TCP port your service is listening on."
+  description = "TCP/SSL port your service is listening on."
+  type = "list"
+}
+
+variable service_port_name {
+  description = "TCP/SSL port name that we associate with instance group and tell load balancer to send traffic"
+  type = "list"
 }
 
 variable target_tags {
-  description = "List of target tags to allow traffic using firewall rule."
-  type        = "list"
+ description = "List of target tags to allow traffic using firewall rule."
+ type        = "list"
 }
 
 variable session_affinity {
   description = "How to distribute load. Options are `NONE`, `CLIENT_IP` and `CLIENT_IP_PROTO`"
   default     = "NONE"
+}
+
+variable instance_group {
+  description = "Manage instance group"
 }

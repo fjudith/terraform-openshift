@@ -44,7 +44,7 @@ resource "google_compute_instance" "bastion" {
   project      = "${var.project}"
   tags         = ["bastion"]
   zone         = "${var.cluster_zones[count.index]}"
-  
+  allow_stopping_for_update = true
 
   boot_disk {
     initialize_params {

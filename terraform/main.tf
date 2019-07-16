@@ -35,22 +35,36 @@ module "gateway" {
   region       = "${var.gcp_region}"
   network      = "${module.network.network_name}"
   subnetwork   = "${element(module.network.subnets_names, 0)}"
-  machine_type = "${var.gcp_gateway_type}"
+  machine_type = "${var.gce_gateway_type}"
 }
 
 
-module "loadbalancer" {
-  source = "./provider/gcp/terraform-google-lb"
-  # version = "1.0.3"
+module "master-loadbalancer" {
+  source = "./provider/gcp/terraform-google-lb-target-pool"
+
+  project           = "${var.gcp_project}"
+  region            = "${var.gcp_region}"
+  name              = "${var.resource_prefix}-master"
+  network           = "${module.network.network_name}"
+  service_port_name  = ["${var.resource_prefix}-master-api"]
+  service_port       = ["443"]
+  instance_group    = "${module.master.region_instance_group}"
+  session_affinity  = "CLIENT_IP"
+  target_tags       = ["${var.resource_prefix}-masters"]
+}
+
+module "node-loadbalancer" {
+  source = "./provider/gcp/terraform-google-lb-target-pool"
 
   project           = "${var.gcp_project}"
   region            = "${var.gcp_region}"
   name              = "${var.resource_prefix}"
   network           = "${module.network.network_name}"
-  # service_port_name = "${var.resource_prefix}-api-https"
-  service_port      = "${module.master.service_port}"
-  # instance_group    = "${module.master.region_instance_group}"
-  target_tags       = ["${var.resource_prefix}-masters"]
+  service_port_name = ["${var.resource_prefix}-node-http","${var.resource_prefix}-node-https"]
+  service_port      = ["80","443"]
+  instance_group    = "${module.node.region_instance_group}"
+  session_affinity  = "CLIENT_IP"
+  target_tags       = ["${var.resource_prefix}-nodes"]
 }
 
 module "master" {
@@ -63,7 +77,7 @@ module "master" {
   name                   = "${var.resource_prefix}-masters"
   size                   = "${var.master_count}"
   service_port_name      = "${var.resource_prefix}-api-https"
-  service_port           = "6443"
+  service_port           = "${var.master_service_port}"
   target_tags            = ["${var.resource_prefix}-nat-${var.gcp_region}", "${var.resource_prefix}-masters"]
   http_health_check      = false
   zonal                  = false
@@ -75,6 +89,7 @@ module "master" {
   machine_type           = "${var.gce_master_type}"
   compute_image          = "${var.gce_image_project}/${var.gce_image_family}"
   startup_script         = "${module.salt-minion-master.centos}"
+  disk_size_gb           = "${var.gce_master_size_gb}"
 
   metadata = {
     "owner" = "${var.owner}"
@@ -105,6 +120,7 @@ module "node" {
   machine_type           = "${var.gce_node_type}"
   compute_image          = "${var.gce_image_project}/${var.gce_image_family}"
   startup_script         = "${module.salt-minion-node.centos}"
+  disk_size_gb           = "${var.gce_node_disk_size_gb}"
 
   metadata = {
     "owner" = "${var.owner}"
@@ -117,7 +133,7 @@ module "bastion" {
   source = "./provider/gcp/gce-bastion"
 
   ssh_public_key    = "${var.ssh_public_key}"
-  bastion_type      = "${var.gcp_bastion_type}"
+  bastion_type      = "${var.gce_bastion_type}"
   region            = "${var.gcp_region}"
   subnet_cidr       = "${var.primary_subnet_cidr}"
   bastion_image     = "${var.gce_image_project}/${var.gce_image_family}"
@@ -139,8 +155,9 @@ module "dns" {
   token           = "${var.cloudflare_token}"
   domain          = "${var.domain}"
   subdomain       = "${var.subdomain}"
-  public_ips      = "${list(module.loadbalancer.external_ip)}"
-  hostnames       = "${list("lb")}"
+  master_lb_ip    = "${list(module.master-loadbalancer.external_ip)}"
+  node_lb_ip      = "${list(module.node-loadbalancer.external_ip)}"
+  hostnames       = "${list("${var.resource_prefix}")}"
   bastion_create  = true
   bastion_host    = "bastion"
   bastion_ip      = "${list(module.bastion.external_ip)}"
@@ -187,6 +204,10 @@ output "gateway_external_ip" {
   value = "${module.gateway.external_ip}"
 }
 
-output "loadbalancer_external_ip" {
-  value = "${module.loadbalancer.external_ip}"
+output "master_loadbalancer_external_ip" {
+  value = "${module.master-loadbalancer.external_ip}"
+}
+
+output "node_loadbalancer_external_ip" {
+  value = "${module.node-loadbalancer.external_ip}"
 }

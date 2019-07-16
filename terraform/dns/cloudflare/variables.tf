@@ -12,7 +12,11 @@ variable "hostnames" {
   type = "list"
 }
 
-variable "public_ips" {
+variable "master_lb_ip" {
+  type = "list"
+}
+
+variable "node_lb_ip" {
   type = "list"
 }
 

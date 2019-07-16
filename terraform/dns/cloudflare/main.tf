@@ -6,7 +6,7 @@ provider "cloudflare" {
 resource "cloudflare_record" "domain" {
   domain  = "${var.domain}"
   name    = "${var.subdomain}"
-  value   = "${element(var.public_ips, 0)}"
+  value   = "${element(var.master_lb_ip, 0)}"
   type    = "A"
   proxied = true
 }
@@ -16,7 +16,7 @@ resource "cloudflare_record" "hosts" {
 
   domain  = "${var.domain}"
   name    = "${element(var.hostnames, count.index)}.${var.subdomain}.${var.domain}"
-  value   = "${element(var.public_ips, count.index)}"
+  value   = "${element(var.master_lb_ip, count.index)}"
   type    = "A"
   proxied = false
 }
@@ -36,7 +36,7 @@ resource "cloudflare_record" "wildcard" {
 
   domain  = "${var.domain}"
   name    = "*.${var.subdomain}.${var.domain}"
-  value   = "${element(var.public_ips, 0)}"
+  value   = "${element(var.node_lb_ip, 0)}"
   type    = "A"
   proxied = false
 }

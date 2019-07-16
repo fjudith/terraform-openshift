@@ -1,0 +1,88 @@
+{% set common = salt['grains.filter_by']({
+    'Debian': {
+        'pkgs': ['curl', 'git', 'apt-transport-https', 'python-apt', 'socat', 'openssl', 'conntrack'],
+        'services': [],
+        'version': version|float,
+    },
+    'RedHat': {
+        'pkgs': ['curl', 'wget', 'git', 'net-tools', 'bind-utils', 'yum-utils', 'iptables-services', 'bridge-utils', 'bash-completion', 'kexec-tools', 'sos', 'psacct'],
+        'services': [],
+        'version': version|float,
+    },
+}, merge=salt['pillar.get']('kubernetes:common')) %}
+
+{% set master = salt['grains.filter_by']({
+    'Debian': {
+        'pkgs': [],
+        'services': ['kube-apiserver','kube-scheduler','kube-controller-manager'],
+        'auth': {
+            'token': {
+                'enabled': true,
+                'file': '/srv/kubernetes/known_tokens.csv',
+            },
+            'ssl': {
+                'enabled': true,
+            },
+            'basic': {
+                'enabled': true,
+                'file': '/srv/kubernetes/basic_auth.csv',
+            },
+            'http': {
+                'enabled': false,
+                'header': {
+                    'user': 'X-Remote-User',
+                    'group': 'X-Remote-Group',
+                    'extra': 'X-Remote-Extra-',
+                },
+            },
+            'anonymous': {
+                'enabled': false,
+            },
+        },
+    },
+    'RedHat': {
+        'pkgs': [],
+        'services': ['kube-apiserver','kube-scheduler','kube-controller-manager'],
+        'auth': {
+            'token': {
+                'enabled': true,
+                'file': '/srv/kubernetes/known_tokens.csv',
+            },
+            'ssl': {
+                'enabled': true,
+            },
+            'basic': {
+                'enabled': true,
+                'file': '/srv/kubernetes/basic_auth.csv',
+            },
+            'http': {
+                'enabled': false,
+                'header': {
+                    'user': 'X-Remote-User',
+                    'group': 'X-Remote-Group',
+                    'extra': 'X-Remote-Extra-',
+                },
+            },
+            'anonymous': {
+                'enabled': false,
+            },
+        },
+    },
+}, merge=salt['pillar.get']('kubernetes:master')) %}
+
+{% set node = salt['grains.filter_by']({
+    'Debian': {
+        'pkgs': [],
+        'services': ['kube-proxy'],
+    },
+    'RedHat': {
+        'pkgs': [],
+        'services': ['kube-proxy'],
+    },
+}, merge=salt['pillar.get']('kubernetes:node')) %}
+
+{%- set etcd = salt['grains.filter_by']({
+  'default': {
+    'version': "v3.2.24",
+  },
+}, merge=salt['pillar.get']('kubernetes:etcd')) %}

@@ -1,0 +1,44 @@
+# Common
+ssh_public_key      = "./authorized-keys.pub"
+ssh_private_key     = "~/.ssh/id_rsa"
+
+domain              = "example.com"
+subdomain          = "ocp"
+
+resource_prefix     = "okd39"
+
+# 10.128.0.0/14 reserved by Openshift SDN
+primary_subnet_cidr   = "10.1.0.0/24"
+secondary_subnet_cidr = "10.2.0.0/24"
+
+master_count        = 3
+node_count          = 3
+
+bastion_create      = true
+
+master_serviceport  = "8443"
+
+# Cloudflare
+cloudflare_email = "user.email@example.com"
+cloudflare_token = "01a2b3c4d5e6f7g8h9i1a2b3c4d5e6f7g8h9i"
+
+# GCP only
+gcp_credentials     = "<path_to_gcp_credential_json>"
+gcp_project         = "<gcp_project_id>"
+gcp_region          = "europe-west1"
+gcp_zone            = "europe-west1-b"
+gcp_cluster_zones   = ["europe-west1-b", "europe-west1-c", "europe-west1-d"]
+gcp_access_config           = []
+gcp_service_account_scopes  = [
+  "https://www.googleapis.com/auth/devstorage.read_only",
+  "https://www.googleapis.com/auth/logging.write",
+  "https://www.googleapis.com/auth/trace.append",
+  "https://www.googleapis.com/auth/compute",
+  "https://www.googleapis.com/auth/monitoring",
+]
+gce_bastion_type = "g1-small"
+gce_gateway_type = "f1-micro"
+gce_master_type  = "custom-4-16384"
+gce_master_disk_size_gb = "50"
+gce_node_type    = "custom-4-8192"
+gce_node_disk_size_gb = "50"

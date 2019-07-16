@@ -1,9 +1,11 @@
 # Common
 variable "domain" {
+  description = "Domain zone"
   default = "domain.tld"
 }
 
 variable "subdomain" {
+  description = "Subdomain allocated to the Openshift cluster"
   default = "sub.domain.tld"
 }
 
@@ -53,17 +55,22 @@ variable "ssh_private_key" {
     default = "~/.ssh/id_rsa.key"
 }
 
+variable "master_service_port" {
+    description = "Openshift API server listen port"
+    default = "8443"
+}
+
 # GCP
-variable "gcp_bastion_type" {
+variable "gce_bastion_type" {
   description = "GCE server model for SSH Bastion host"
   default = "f1-micro"
 }
 
-variable "gcp_bastion_image" {
+variable "gce_bastion_image" {
   default = "centos-cloud/centos-7"
 }
 
-variable "gcp_gateway_type" {
+variable "gce_gateway_type" {
   description = "GCE server model for Nat Gateway host"
   default = "f1-micro"
 }
@@ -102,10 +109,19 @@ variable "gce_master_type" {
     default = "f1-micro"
 }
 
+variable "gce_master_size_gb" {
+    description = "GCE disk size for OpenShift node"
+    default = "45"
+}
 
 variable "gce_node_type" {
     description = "GCE server model for OpenShift node"
     default = "f1-micro"
+}
+
+variable "gce_node_disk_size_gb" {
+    description = "GCE disk size for OpenShift node"
+    default = "20"
 }
 
 variable "gce_image_family" {
