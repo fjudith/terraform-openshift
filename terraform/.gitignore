@@ -3,5 +3,5 @@
 *.tfstate
 *.tfvars
 account.json
-poc-bscc-e6820e0add5f.json
 *.pub
+*-*.json
