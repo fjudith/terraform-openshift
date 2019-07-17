@@ -71,7 +71,7 @@ module "master" {
   source       = "./provider/gcp/gce-master"
 
   bastion_host = "${module.bastion.external_ip}"
-  ssh_user     = "admin"
+  ssh_user     = "${var.ssh_user}"
 
   project                = "${var.gcp_project}"
   region                 = "${var.gcp_region}"
@@ -90,9 +90,12 @@ module "master" {
   machine_type           = "${var.gce_master_type}"
   compute_image          = "${var.gce_image_project}/${var.gce_image_family}"
   startup_script         = "${module.salt-minion-master.centos}"
-  etcd_disk_size_gb       = "10"
-  containers_disk_size_gb = "30"
-  local_disk_size_gb      = "10"
+  etcd_disk_type         = "${var.gce_master_etcd_disk_type}"
+  etcd_disk_size_gb       = "${var.gce_master_etcd_disk_gb}"
+  containers_disk_type    = "${var.gce_master_containers_disk_type}"
+  containers_disk_size_gb = "${var.gce_master_containers_disk_gb}"
+  local_disk_type         = "${var.gce_master_local_disk_type}"
+  local_disk_size_gb      = "${var.gce_master_local_disk_gb}"
 
   metadata = {
     "owner" = "${var.owner}"
@@ -106,7 +109,7 @@ module "node" {
   source = "./provider/gcp/gce-node"
 
   bastion_host = "${module.bastion.external_ip}"
-  ssh_user     = "admin"
+  ssh_user     = "${var.ssh_user}"
 
   project                = "${var.gcp_project}"
   region                 = "${var.gcp_region}"
@@ -125,8 +128,10 @@ module "node" {
   machine_type           = "${var.gce_node_type}"
   compute_image          = "${var.gce_image_project}/${var.gce_image_family}"
   startup_script         = "${module.salt-minion-node.centos}"
-  containers_disk_size_gb = "30"
-  local_disk_size_gb      = "10"
+  containers_disk_type   = "${var.gce_node_containers_disk_type}"
+  containers_disk_size_gb = "${var.gce_node_containers_disk_gb}"
+  local_disk_type         = "${var.gce_node_local_disk_type}"
+  local_disk_size_gb      = "${var.gce_node_local_disk_gb}"
 
   metadata = {
     "owner" = "${var.owner}"

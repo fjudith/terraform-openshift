@@ -60,6 +60,11 @@ variable "master_service_port" {
     default = "8443"
 }
 
+variable "ssh_user" {
+    description = "SSH user for Terraform remote commands"
+    default     = "root"
+}
+
 # GCP
 variable "gce_bastion_type" {
   description = "GCE server model for SSH Bastion host"
@@ -114,6 +119,36 @@ variable "gce_master_size_gb" {
     default = "45"
 }
 
+variable "gce_master_etcd_disk_type" {
+    description = "Etcd disk type for OpenShift master"
+    default     = "pd-standard"
+}
+
+variable "gce_master_etcd_disk_gb" {
+    description = "Etcd disk size for OpenShift master"
+    default = "10"
+}
+
+variable "gce_master_containers_disk_type" {
+    description = "Containers disk type for OpenShift master"
+    default     = "pd-standard"
+}
+
+variable "gce_master_containers_disk_gb" {
+    description = "Containers disk size for OpenShift master"
+    default = "30"
+}
+
+variable "gce_master_local_disk_type" {
+    description = "Local Volume disk type for OpenShift master"
+    default     = "pd-standard"
+}
+
+variable "gce_master_local_disk_gb" {
+    description = "Local Volume disk size for OpenShift master"
+    default = "10"
+}
+
 variable "gce_node_type" {
     description = "GCE server model for OpenShift node"
     default = "f1-micro"
@@ -122,6 +157,26 @@ variable "gce_node_type" {
 variable "gce_node_disk_size_gb" {
     description = "GCE disk size for OpenShift node"
     default = "20"
+}
+
+variable "gce_node_containers_disk_type" {
+    description = "Containers disk type for OpenShift node"
+    default     = "pd-standard"
+}
+
+variable "gce_node_containers_disk_gb" {
+    description = "Containers disk size for OpenShift node"
+    default = "30"
+}
+
+variable "gce_node_local_disk_type" {
+    description = "Local Volume disk type for OpenShift node"
+    default     = "pd-standard"
+}
+
+variable "gce_node_local_disk_gb" {
+    description = "Local Volume disk size for OpenShift node"
+    default = "10"
 }
 
 variable "gce_image_family" {
