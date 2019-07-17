@@ -58,6 +58,6 @@ variable session_affinity {
   default     = "NONE"
 }
 
-variable instance_group {
-  description = "Manage instance group"
+variable instances {
+  type = "list"
 }

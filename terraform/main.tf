@@ -48,9 +48,9 @@ module "master-loadbalancer" {
   network           = "${module.network.network_name}"
   service_port_name  = ["${var.resource_prefix}-master-api"]
   service_port       = ["443"]
-  instance_group    = "${module.master.region_instance_group}"
   session_affinity  = "CLIENT_IP"
   target_tags       = ["${var.resource_prefix}-masters"]
+  instances         = ["${module.master.instance_link}"]
 }
 
 module "node-loadbalancer" {
@@ -62,25 +62,26 @@ module "node-loadbalancer" {
   network           = "${module.network.network_name}"
   service_port_name = ["${var.resource_prefix}-node-http","${var.resource_prefix}-node-https"]
   service_port      = ["80","443"]
-  instance_group    = "${module.node.region_instance_group}"
   session_affinity  = "CLIENT_IP"
   target_tags       = ["${var.resource_prefix}-nodes"]
+  instances         = ["${module.node.instance_link}"]
 }
 
 module "master" {
-  source = "./provider/gcp/terraform-google-managed-instance-group"
-  #  version = "1.1.15"
+  source       = "./provider/gcp/gce-master"
+
+  bastion_host = "${module.bastion.external_ip}"
+  ssh_user     = "admin"
 
   project                = "${var.gcp_project}"
   region                 = "${var.gcp_region}"
-  zone                   = "${var.gcp_zone}"
-  name                   = "${var.resource_prefix}-masters"
-  size                   = "${var.master_count}"
+  cluster_zones          = "${var.gcp_cluster_zones}"
+  name                   = "${var.resource_prefix}-master"
+  instance_count         = "${var.master_count}"
   service_port_name      = "${var.resource_prefix}-api-https"
   service_port           = "${var.master_service_port}"
   target_tags            = ["${var.resource_prefix}-nat-${var.gcp_region}", "${var.resource_prefix}-masters"]
   http_health_check      = false
-  zonal                  = false
   service_account_scopes = ["${var.gcp_service_account_scopes}"]
   network                = "${module.network.network_name}"
   subnetwork             = "${element(module.network.subnets_names, 0)}"
@@ -89,7 +90,9 @@ module "master" {
   machine_type           = "${var.gce_master_type}"
   compute_image          = "${var.gce_image_project}/${var.gce_image_family}"
   startup_script         = "${module.salt-minion-master.centos}"
-  disk_size_gb           = "${var.gce_master_size_gb}"
+  etcd_disk_size_gb       = "10"
+  containers_disk_size_gb = "30"
+  local_disk_size_gb      = "10"
 
   metadata = {
     "owner" = "${var.owner}"
@@ -100,18 +103,20 @@ module "master" {
 
 
 module "node" {
-  source = "./provider/gcp/terraform-google-managed-instance-group"
+  source = "./provider/gcp/gce-node"
+
+  bastion_host = "${module.bastion.external_ip}"
+  ssh_user     = "admin"
 
   project                = "${var.gcp_project}"
   region                 = "${var.gcp_region}"
-  zone                   = "${var.gcp_zone}"
-  name                   = "${var.resource_prefix}-nodes"
-  size                   = "${var.node_count}"
+  cluster_zones          = "${var.gcp_cluster_zones}"
+  name                   = "${var.resource_prefix}-node"
+  instance_count         = "${var.node_count}"
   service_port_name      = "${var.resource_prefix}-null"
   service_port           = "65535"
   target_tags            = ["${var.resource_prefix}-nat-${var.gcp_region}", "${var.resource_prefix}-node"]
   http_health_check      = false
-  zonal                  = false
   service_account_scopes = ["${var.gcp_service_account_scopes}"]
   network                = "${module.network.network_name}"
   subnetwork             = "${element(module.network.subnets_names, 0)}"
@@ -120,7 +125,8 @@ module "node" {
   machine_type           = "${var.gce_node_type}"
   compute_image          = "${var.gce_image_project}/${var.gce_image_family}"
   startup_script         = "${module.salt-minion-node.centos}"
-  disk_size_gb           = "${var.gce_node_disk_size_gb}"
+  containers_disk_size_gb = "30"
+  local_disk_size_gb      = "10"
 
   metadata = {
     "owner" = "${var.owner}"
@@ -192,22 +198,3 @@ module "salt-minion-node" {
 #   connections = "${concat(module.bastion.external_ip, module.gateway.external_ip, module.master.network_ip, module.node.network_ip)}"
 # }
 
-output "bastion_external_ip" {
-  value = "${module.bastion.external_ip}"
-}
-
-output "bastion_internal_ip" {
-  value = "${module.bastion.internal_ip}"
-}
-
-output "gateway_external_ip" {
-  value = "${module.gateway.external_ip}"
-}
-
-output "master_loadbalancer_external_ip" {
-  value = "${module.master-loadbalancer.external_ip}"
-}
-
-output "node_loadbalancer_external_ip" {
-  value = "${module.node-loadbalancer.external_ip}"
-}

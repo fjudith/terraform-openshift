@@ -39,9 +39,9 @@ resource "google_compute_target_pool" "default" {
   project          = "${var.project}"
   name             = "${element(var.service_port_name, count.index)}-target-pool"
   region           = "${var.region}"
-  # session_affinity = "${var.session_affinity}"
+  session_affinity = "${var.session_affinity}"
 
-  # backup_pool = "${var.instance_group}"
+  instances = ["${var.instances}"]
 
   health_checks = [
     "${google_compute_http_health_check.default.name}",

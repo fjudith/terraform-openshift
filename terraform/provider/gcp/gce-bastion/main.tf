@@ -36,6 +36,8 @@ resource "google_compute_firewall" "bastion-int-egress" {
   direction          = "EGRESS"
   destination_ranges = ["0.0.0.0/0"]
 }
+
+
 resource "google_compute_instance" "bastion" {
   count        = "${var.bastion_create ? 1 : 0}"
   name         = "${var.res_prefix}-bastion"
