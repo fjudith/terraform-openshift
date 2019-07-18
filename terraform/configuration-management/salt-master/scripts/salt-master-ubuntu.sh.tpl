@@ -14,6 +14,7 @@ apt-get install -yqq --no-install-recommends \
   net-tools \
   gnupg2 \
   lsb-release \
+  jq \
   gcc \
   make \
   dmidecode \
