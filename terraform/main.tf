@@ -140,6 +140,43 @@ module "node" {
   }
 }
 
+module "database" {
+  source = "./provider/gcp/gce-database"
+
+  bastion_host = "${module.bastion.external_ip}"
+  ssh_user     = "${var.ssh_user}"
+
+  project                = "${var.gcp_project}"
+  region                 = "${var.gcp_region}"
+  cluster_zones          = "${var.gcp_cluster_zones}"
+  name                   = "${var.resource_prefix}-okd-db"
+  instance_count         = "2"
+  service_port_name      = "${var.resource_prefix}-mysql"
+  service_port           = "5432"
+  target_tags            = ["${var.resource_prefix}-nat-${var.gcp_region}", "${var.resource_prefix}-node"]
+  http_health_check      = false
+  service_account_scopes = ["${var.gcp_service_account_scopes}"]
+  network                = "${module.network.network_name}"
+  subnetwork             = "${element(module.network.subnets_names, 0)}"
+  access_config          = ["${var.gcp_access_config}"]
+  can_ip_forward         = true
+  machine_type           = "g1-small"
+  compute_image          = "${var.gce_image_project}/${var.gce_image_family}"
+  startup_script         = "${module.salt-minion-node.centos}"
+  database_disk_type   = "pd-standard"
+  database_disk_size_gb = "15"
+  backup_disk_type         = "pd-standard"
+  backup_disk_size_gb      = "15"
+
+  metadata = {
+    "owner" = "${var.owner}"
+
+    "ssh-keys" = "${file("${var.ssh_public_key}")}"
+  }
+}
+
+
+
 module "bastion" {
   source = "./provider/gcp/gce-bastion"
 
@@ -176,7 +213,10 @@ module "dns" {
 
 module "salt-master" {
   source = "./configuration-management/salt-master"
-
+  cloudflare_email           = "${var.cloudflare_email}"
+  cloudflare_token           = "${var.cloudflare_token}"
+  cloudflare_zone          = "${var.domain}"
+  cloudflare_record          = "bastion.${var.subdomain}.${var.domain}"
   role    = "bastion"
 }
 
@@ -202,4 +242,3 @@ module "salt-minion-node" {
 #   ssh_private_key = "${var.ssh_private_key}"
 #   connections = "${concat(module.bastion.external_ip, module.gateway.external_ip, module.master.network_ip, module.node.network_ip)}"
 # }
-

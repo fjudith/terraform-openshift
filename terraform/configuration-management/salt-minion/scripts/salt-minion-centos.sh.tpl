@@ -13,6 +13,7 @@ yum install -y \
   curl \
   net-tools \
   gnupg2 \
+  jq \
   epel-release \
   gcc \
   make \

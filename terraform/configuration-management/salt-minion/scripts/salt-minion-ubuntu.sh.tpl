@@ -14,6 +14,7 @@ apt-get install -yqq --no-install-recommends \
   gnupg2 \
   lsb-release \
   gcc \
+  jq \
   make \
   dmidecode \
   debconf-utils \
